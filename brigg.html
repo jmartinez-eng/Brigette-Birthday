@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Brigette's Birthday [solidcore]</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Barlow Condensed matches solidcore's condensed bold headline style -->
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700;800;900&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue: #1A5CFF;
+      --blue-dark: #1246CC;
+      --white: #FFFFFF;
+      --black: #000000;
+      --off-white: #F5F5F5;
+      --gray: #888888;
+      --light-gray: #E8E8E8;
+      --text: #111111;
+      --error: #FF3B5C;
+    }
+
+    body {
+      background: var(--white);
+      color: var(--text);
+      font-family: 'Barlow', sans-serif;
+      min-height: 100vh;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      background: var(--black);
+      padding: 56px 24px 48px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-label {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 5px;
+      text-transform: uppercase;
+      color: var(--blue);
+      margin-bottom: 16px;
+    }
+
+    .hero-subtext {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 20px;
+      font-weight: 500;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.5);
+      margin-bottom: 4px;
+    }
+
+    .hero-name {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: clamp(72px, 18vw, 120px);
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: -2px;
+      line-height: 0.9;
+      color: var(--white);
+      margin-bottom: 4px;
+    }
+
+    .hero-name span {
+      color: var(--blue);
+    }
+
+    .hero-divider {
+      width: 48px;
+      height: 3px;
+      background: var(--blue);
+      margin: 20px auto;
+    }
+
+    .hero-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0;
+      justify-content: center;
+      margin-bottom: 36px;
+    }
+
+    .hero-meta-item {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.6);
+      padding: 0 16px;
+      position: relative;
+    }
+
+    .hero-meta-item:not(:last-child)::after {
+      content: '·';
+      position: absolute;
+      right: -2px;
+      color: var(--blue);
+    }
+
+    /* SPOTS TRACKER */
+    .spots-wrap {
+      max-width: 380px;
+      margin: 0 auto;
+      border: 1px solid rgba(255,255,255,0.12);
+      padding: 20px 24px;
+    }
+
+    .spots-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .spots-label {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.5);
+    }
+
+    .spots-count {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--blue);
+    }
+
+    .spots-count.full { color: var(--error); }
+
+    .track {
+      height: 3px;
+      background: rgba(255,255,255,0.15);
+      margin-bottom: 14px;
+    }
+
+    .track-fill {
+      height: 100%;
+      background: var(--blue);
+      transition: width 0.5s ease;
+    }
+
+    .track-fill.full { background: var(--error); }
+
+    .dot-row { display: flex; gap: 4px; }
+
+    .dot {
+      flex: 1;
+      height: 4px;
+      background: rgba(255,255,255,0.15);
+      transition: background 0.3s;
+    }
+
+    .dot.filled { background: var(--blue); }
+
+    /* ── TABS ── */
+    .tabs {
+      display: flex;
+      background: var(--black);
+      border-bottom: 1px solid #222;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .tab {
+      flex: 1;
+      padding: 18px;
+      background: none;
+      border: none;
+      border-bottom: 3px solid transparent;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.35);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .tab.active {
+      color: var(--white);
+      border-bottom-color: var(--blue);
+    }
+
+    /* ── CONTENT ── */
+    .content {
+      max-width: 460px;
+      margin: 0 auto;
+      padding: 40px 24px 80px;
+    }
+
+    /* FORM INTRO */
+    .form-intro {
+      border-left: 3px solid var(--blue);
+      padding-left: 16px;
+      margin-bottom: 32px;
+    }
+
+    .form-intro-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 22px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    .form-intro-sub {
+      font-size: 14px;
+      color: var(--gray);
+      line-height: 1.5;
+      font-weight: 400;
+    }
+
+    /* FIELDS */
+    .field-wrap { margin-bottom: 20px; }
+
+    .field-label {
+      display: block;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--gray);
+      margin-bottom: 8px;
+    }
+
+    input {
+      width: 100%;
+      background: var(--white);
+      border: none;
+      border-bottom: 2px solid var(--light-gray);
+      padding: 12px 0;
+      color: var(--text);
+      font-size: 16px;
+      font-family: 'Barlow', sans-serif;
+      font-weight: 500;
+      outline: none;
+      transition: border-color 0.2s;
+      border-radius: 0;
+    }
+
+    input:focus { border-bottom-color: var(--blue); }
+    input::placeholder { color: #ccc; font-weight: 400; }
+
+    /* SUBMIT BUTTON - solidcore style: black bg, white text, uppercase */
+    .btn-submit {
+      width: 100%;
+      background: var(--black);
+      border: none;
+      padding: 18px;
+      color: var(--white);
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 8px;
+    }
+
+    .btn-submit:hover { background: var(--blue); }
+    .btn-submit:disabled { opacity: 0.4; cursor: wait; background: var(--black); }
+
+    .error-box {
+      background: #FFF0F3;
+      border-left: 3px solid var(--error);
+      padding: 12px 16px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--error);
+      margin-bottom: 16px;
+      font-family: 'Barlow', sans-serif;
+    }
+
+    .hint {
+      margin-top: 14px;
+      text-align: center;
+      font-size: 12px;
+      color: #bbb;
+      letter-spacing: 1px;
+      font-family: 'Barlow Condensed', sans-serif;
+      text-transform: uppercase;
+    }
+
+    /* SUCCESS */
+    .success-box {
+      text-align: center;
+      padding: 56px 24px;
+      border: 1px solid var(--light-gray);
+    }
+
+    .success-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: clamp(48px, 12vw, 64px);
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: -1px;
+      color: var(--black);
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .success-title span { color: var(--blue); }
+
+    .success-sub {
+      font-size: 15px;
+      color: var(--gray);
+      line-height: 1.7;
+      margin-top: 12px;
+    }
+
+    .btn-outline {
+      display: inline-block;
+      margin-top: 28px;
+      background: transparent;
+      border: 2px solid var(--black);
+      color: var(--black);
+      padding: 14px 32px;
+      cursor: pointer;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      transition: all 0.2s;
+    }
+
+    .btn-outline:hover { background: var(--black); color: var(--white); }
+
+    /* FULL */
+    .full-box {
+      text-align: center;
+      padding: 56px 24px;
+      border: 1px solid var(--light-gray);
+    }
+
+    /* ROSTER */
+    .roster-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 24px;
+      border-bottom: 2px solid var(--black);
+      padding-bottom: 12px;
+    }
+
+    .roster-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 28px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    .roster-badge {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: var(--blue);
+      text-transform: uppercase;
+    }
+
+    .roster-list { display: flex; flex-direction: column; gap: 0; }
+
+    .roster-card {
+      padding: 16px 0;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      border-bottom: 1px solid var(--light-gray);
+    }
+
+    .avatar {
+      width: 40px;
+      height: 40px;
+      background: var(--blue);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 15px;
+      font-weight: 800;
+      color: #fff;
+      flex-shrink: 0;
+      text-transform: uppercase;
+    }
+
+    .roster-name {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text);
+    }
+
+    .roster-email {
+      font-size: 12px;
+      color: var(--gray);
+      margin-top: 1px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .roster-num {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--light-gray);
+      flex-shrink: 0;
+      margin-left: auto;
+      letter-spacing: 1px;
+    }
+
+    .empty-roster {
+      text-align: center;
+      padding: 48px 24px;
+      border: 1px solid var(--light-gray);
+      color: var(--gray);
+    }
+
+    .empty-roster-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 22px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--black);
+      margin-bottom: 6px;
+    }
+
+    .spots-msg {
+      margin-top: 20px;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--gray);
+      text-align: center;
+    }
+
+    .btn-back {
+      margin-top: 28px;
+      width: 100%;
+      background: transparent;
+      border: 2px solid var(--light-gray);
+      padding: 14px;
+      color: var(--gray);
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-back:hover { border-color: var(--black); color: var(--black); }
+
+    .loading-msg {
+      text-align: center;
+      color: var(--gray);
+      padding: 60px 0;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 13px;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+    }
+
+    footer {
+      text-align: center;
+      padding: 24px;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.3);
+      background: var(--black);
+      border-top: 1px solid #222;
+    }
+  </style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-label">[ solidcore ] Birthday Class</div>
+  <div class="hero-subtext">Celebrating</div>
+  <div class="hero-name">Brig<span>e</span>tte</div>
+  <div class="hero-divider"></div>
+  <div class="hero-meta">
+    <span class="hero-meta-item">Darien, CT</span>
+    <span class="hero-meta-item">May 23rd</span>
+    <span class="hero-meta-item">10 Spots Only</span>
+  </div>
+
+  <div class="spots-wrap">
+    <div class="spots-row">
+      <span class="spots-label">Class Capacity</span>
+      <span class="spots-count" id="spots-count">10 Spots Left</span>
+    </div>
+    <div class="track"><div class="track-fill" id="track-fill" style="width:0%"></div></div>
+    <div class="dot-row" id="dot-row"></div>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <button class="tab active" id="tab-form" onclick="switchTab('form')">Sign Me Up</button>
+  <button class="tab" id="tab-roster" onclick="switchTab('roster')">Who's In (<span id="tab-count">0</span>)</button>
+</div>
+
+<!-- CONTENT -->
+<div class="content">
+
+  <!-- FORM VIEW -->
+  <div id="view-form">
+    <div id="loading-form" class="loading-msg">Loading...</div>
+
+    <div id="form-inner" style="display:none">
+      <div class="form-intro">
+        <div class="form-intro-title">Reserve Your Spot</div>
+        <div class="form-intro-sub">Fill out your info below to lock in your spot for Brigette's birthday class. You'll appear on the roster instantly.</div>
+      </div>
+
+      <div class="field-wrap">
+        <label class="field-label">First Name</label>
+        <input type="text" id="firstName" placeholder="Jane" />
+      </div>
+      <div class="field-wrap">
+        <label class="field-label">Last Name</label>
+        <input type="text" id="lastName" placeholder="Smith" />
+      </div>
+      <div class="field-wrap">
+        <label class="field-label">Phone Number</label>
+        <input type="tel" id="phone" placeholder="(203) 555-0100" />
+      </div>
+      <div class="field-wrap">
+        <label class="field-label">Email Address</label>
+        <input type="email" id="email" placeholder="jane@email.com" />
+      </div>
+
+      <div id="error-box" class="error-box" style="display:none"></div>
+
+      <button class="btn-submit" id="btn-submit" onclick="handleSubmit()">Reserve My Spot</button>
+      <p class="hint">Shared with your group only</p>
+    </div>
+
+    <div id="success-box" class="success-box" style="display:none">
+      <div class="success-title">You're <span>In!</span></div>
+      <div class="success-sub">See you on the reformer May 23rd.<br>Let's get it. 💙</div>
+      <button class="btn-outline" onclick="switchTab('roster')">See Who's Coming</button>
+    </div>
+
+    <div id="full-box" class="full-box" style="display:none">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:48px;font-weight:900;text-transform:uppercase;letter-spacing:-1px;color:var(--error);line-height:1;margin-bottom:12px;">Class Full</div>
+      <div style="font-size:14px;color:var(--gray);line-height:1.6;">All 10 spots are taken.<br>Reach out to Brigette about the waitlist.</div>
+    </div>
+  </div>
+
+  <!-- ROSTER VIEW -->
+  <div id="view-roster" style="display:none">
+    <div id="loading-roster" class="loading-msg">Loading...</div>
+    <div id="roster-inner" style="display:none">
+      <div class="roster-header">
+        <div class="roster-title">Who's Coming</div>
+        <div class="roster-badge" id="roster-badge">0 / 10</div>
+      </div>
+      <div class="empty-roster" id="empty-roster" style="display:none">
+        <div class="empty-roster-title">No Signups Yet</div>
+        <div style="font-size:14px;color:var(--gray);">Be the first to grab a spot!</div>
+      </div>
+      <div class="roster-list" id="roster-list"></div>
+      <div class="spots-msg" id="spots-msg"></div>
+    </div>
+    <button class="btn-back" onclick="switchTab('form')">← Back to Sign Up</button>
+  </div>
+
+</div>
+
+<footer>[ solidcore ] Darien &nbsp;·&nbsp; May 23 &nbsp;·&nbsp; Semi-Private</footer>
+
+<script>
+  const SUPABASE_URL = 'https://vxzavgfjwggvpkplzakj.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_Qvj_mtE5Tr6JYYqQ7aP0Zg_1k5I78jU';
+  const MAX_SPOTS = 10;
+  const { createClient } = supabase;
+  const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+  let signups = [];
+
+  async function loadSignups() {
+    const { data, error } = await db
+      .from('birthday_signups')
+      .select('*')
+      .order('created_at', { ascending: true });
+    if (!error && data) signups = data;
+    updateHeader();
+  }
+
+  function updateHeader() {
+    const count = signups.length;
+    const left = MAX_SPOTS - count;
+    const isFull = left <= 0;
+    const countEl = document.getElementById('spots-count');
+    countEl.textContent = isFull ? 'Class Full' : `${left} Spot${left !== 1 ? 's' : ''} Left`;
+    countEl.className = 'spots-count' + (isFull ? ' full' : '');
+    const fill = document.getElementById('track-fill');
+    fill.style.width = `${(count / MAX_SPOTS) * 100}%`;
+    fill.className = 'track-fill' + (isFull ? ' full' : '');
+    const dotRow = document.getElementById('dot-row');
+    dotRow.innerHTML = '';
+    for (let i = 0; i < MAX_SPOTS; i++) {
+      const d = document.createElement('div');
+      d.className = 'dot' + (i < count ? ' filled' : '');
+      dotRow.appendChild(d);
+    }
+    document.getElementById('tab-count').textContent = count;
+  }
+
+  async function initForm() {
+    await loadSignups();
+    document.getElementById('loading-form').style.display = 'none';
+    if (signups.length >= MAX_SPOTS) {
+      document.getElementById('full-box').style.display = 'block';
+    } else {
+      document.getElementById('form-inner').style.display = 'block';
+    }
+  }
+
+  async function initRoster() {
+    document.getElementById('loading-roster').style.display = 'block';
+    document.getElementById('roster-inner').style.display = 'none';
+    await loadSignups();
+    renderRoster();
+    document.getElementById('loading-roster').style.display = 'none';
+    document.getElementById('roster-inner').style.display = 'block';
+  }
+
+  function renderRoster() {
+    const list = document.getElementById('roster-list');
+    list.innerHTML = '';
+    document.getElementById('roster-badge').textContent = `${signups.length} / ${MAX_SPOTS}`;
+    if (signups.length === 0) {
+      document.getElementById('empty-roster').style.display = 'block';
+    } else {
+      document.getElementById('empty-roster').style.display = 'none';
+      signups.forEach((s, i) => {
+        const card = document.createElement('div');
+        card.className = 'roster-card';
+        const initials = (s.first_name[0] || '') + (s.last_name[0] || '');
+        card.innerHTML = `
+          <div class="avatar">${initials.toUpperCase()}</div>
+          <div style="flex:1;min-width:0">
+            <div class="roster-name">${s.first_name} ${s.last_name}</div>
+            <div class="roster-email">${s.email}</div>
+          </div>
+          <div class="roster-num">#${i + 1}</div>
+        `;
+        list.appendChild(card);
+      });
+    }
+    const left = MAX_SPOTS - signups.length;
+    document.getElementById('spots-msg').textContent = left > 0 ? `${left} Spot${left !== 1 ? 's' : ''} Remaining` : 'Class Is Full';
+  }
+
+  async function handleSubmit() {
+    const firstName = document.getElementById('firstName').value.trim();
+    const lastName = document.getElementById('lastName').value.trim();
+    const phone = document.getElementById('phone').value.trim();
+    const email = document.getElementById('email').value.trim();
+    document.getElementById('error-box').style.display = 'none';
+    if (!firstName || !lastName || !phone || !email) { showError('Please fill in all fields.'); return; }
+    if (!/\S+@\S+\.\S+/.test(email)) { showError('Please enter a valid email address.'); return; }
+    if (signups.length >= MAX_SPOTS) { showError('Sorry, this class is full!'); return; }
+    const btn = document.getElementById('btn-submit');
+    btn.disabled = true;
+    btn.textContent = 'Saving...';
+    const { error } = await db.from('birthday_signups').insert([{ first_name: firstName, last_name: lastName, phone, email }]);
+    if (error) {
+      showError(error.code === '23505' ? 'This email is already registered!' : 'Something went wrong. Please try again.');
+      btn.disabled = false;
+      btn.textContent = 'Reserve My Spot';
+      return;
+    }
+    await loadSignups();
+    document.getElementById('form-inner').style.display = 'none';
+    document.getElementById('success-box').style.display = 'block';
+  }
+
+  function showError(msg) {
+    const box = document.getElementById('error-box');
+    box.textContent = '⚠️ ' + msg;
+    box.style.display = 'block';
+  }
+
+  function switchTab(tab) {
+    document.getElementById('view-form').style.display = tab === 'form' ? 'block' : 'none';
+    document.getElementById('view-roster').style.display = tab === 'roster' ? 'block' : 'none';
+    document.getElementById('tab-form').className = 'tab' + (tab === 'form' ? ' active' : '');
+    document.getElementById('tab-roster').className = 'tab' + (tab === 'roster' ? ' active' : '');
+    if (tab === 'roster') initRoster();
+  }
+
+  initForm();
+</script>
+</body>
+</html>
